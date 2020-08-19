@@ -1,7 +1,11 @@
 require("dotenv").config();
 const express = require("express");
+const cors = require("cors");
 
 const app = express();
+
+// server middleware
+app.use(cors({ credentials: true })); // allow cross origin resource sharing
 
 app.get("/", function (req, res) {
   res.send("ok");
