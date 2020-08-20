@@ -3,6 +3,14 @@ const jwt = require("jsonwebtoken");
 const { createOrUpdateUser, getUser, updateUserTokenVersion } = require("./db_utils.js");
 
 function addAuthRoutes(app) {
+  app.post("/register", function (req, res) {
+    res.status(501).send({ error: "Not implemented, use registration with oauth instead!" }); // not_implemented
+  });
+
+  app.get("/login", function (req, res) {
+    res.status(501).send({ error: "Not implemented, use /auth/<provider> instead" }); // not_implemented
+  });
+
   app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"], session: false }));
 
   app.get("/auth/google/callback", passport.authenticate("google"), function (req, res) {
@@ -53,7 +61,7 @@ function isAuthorized(req, res, next) {
     }
 
     // verify if user was found in database
-    const user = getUser();
+    const user = getUser(payload.email);
     if (!user) throw new Error("User does not exist");
 
     // verify tokenVersion from payload agains tokenVersion from user database

@@ -20,7 +20,7 @@ module.exports.createOrUpdateUser = function (profile) {
 };
 
 module.exports.getUser = function (email) {
-  return users.find((u) => email == u.email);
+  return users.find((u) => email === u.email);
 };
 
 module.exports.updateUserTokenVersion = function (email) {
