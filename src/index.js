@@ -13,7 +13,7 @@ app.use(passport.initialize()); // use passport middleware
 
 // add routes
 app.get("/", function (req, res) {
-  res.send("ok");
+  res.send("home");
 });
 
 app.get("/users", isAuthorized, (req, res) => {

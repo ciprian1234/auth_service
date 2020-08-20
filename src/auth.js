@@ -1,43 +1,40 @@
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
-const { randomBytes } = require("crypto");
-const { exception } = require("console");
+const { createOrUpdateUser, getUser, updateUserTokenVersion } = require("./db_utils.js");
 
-const users = [];
-
-module.exports.getUsers = () => users;
-
-module.exports.addAuthRoutes = function (app) {
+function addAuthRoutes(app) {
   app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"], session: false }));
 
   app.get("/auth/google/callback", passport.authenticate("google"), function (req, res) {
     if (!req.user) res.status(401).json({ error: "AuthError: Failed to login with OAuth2.0" });
-    else {
-      // check if user is already in DB
-      const { email, tokenVersion } = checkUser(req.user);
 
-      // create accessToken
-      const token = jwt.sign({ email, tokenVersion }, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: process.env.ACCESS_TOKEN_EXPIRATION,
-      });
+    // check if user is already in DB
+    const { email, tokenVersion, name } = createOrUpdateUser(req.user);
 
-      // send accessToken to user
-      res.json({ accessToken: token, error: null });
-    }
+    // create accessToken
+    const token = jwt.sign({ email, tokenVersion }, process.env.ACCESS_TOKEN_SECRET, {
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRATION,
+    });
+
+    // send userProfile along with accessToken to user
+    res.json({ user: { email, name }, accessToken: token, error: null });
+    // optional feature: create refreshToken
+    // optional feature: save refreshToken in user browser as cookie
   });
 
-  app.get("/logout", function (req, res) {
+  app.get("/logout", isAuthorized, function (req, res) {
     // invalidate access and refresh token
-    /* TODO */
+    updateUserTokenVersion();
+    res.json({ error: null });
   });
 
   app.get("/refresh_tokens", function (req, res) {
-    // generate new access token and refresh token for user
-    /* TODO */
+    // generate new tokens based on provided refreshToken from cookie
+    res.status(501).send({});
   });
-};
+}
 
-module.exports.isAuthorized = function (req, res, next) {
+function isAuthorized(req, res, next) {
   try {
     // extract jwt access token from HTTP header
     const authorization = req.headers["authorization"];
@@ -55,33 +52,18 @@ module.exports.isAuthorized = function (req, res, next) {
       throw new Error("Invalid JWT");
     }
 
-    // TODO: verify if user was found in database
-    const user = users.find((u) => payload.email == u.email);
+    // verify if user was found in database
+    const user = getUser();
     if (!user) throw new Error("User does not exist");
 
     // verify tokenVersion from payload agains tokenVersion from user database
     if (payload.tokenVersion !== user.tokenVersion) throw new Error("Invalid tokenVersion");
 
-    // if everything is ok we reach here
+    // if everything is ok we will reach here, that means user is authorized
     next();
   } catch (err) {
-    console.log(err.message);
     res.status(401).json({ error: `AuthError: ${err.message}!`, success: false });
   }
-};
-
-function checkUser(profile) {
-  // extract email from userProfile
-  const email = profile._json.email;
-  const accessTokenProvider = profile.accessToken;
-  const name = profile.name;
-  const tokenVersion = randomBytes(32).toString("base64");
-
-  // check if user already exists in DB
-  if (users.filter((user) => user.email === email).length > 0) {
-  } else {
-    users.push({ email, name, accessTokenProvider, tokenVersion });
-  }
-
-  return users[users.length - 1];
 }
+
+module.exports = { addAuthRoutes, isAuthorized };
