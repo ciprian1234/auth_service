@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const passport = require("passport");
 require("./passport_config");
-const { addAuthRoutes } = require("./auth");
+const { addAuthRoutes, isAuthorized, getUsers } = require("./auth");
 
 const app = express();
 
@@ -16,9 +16,11 @@ app.get("/", function (req, res) {
   res.send("ok");
 });
 
+app.get("/users", isAuthorized, (req, res) => {
+  res.json(getUsers());
+});
+
 // auth routes
 addAuthRoutes(app);
 
-app.listen(process.env["PORT"], () =>
-  console.log(`Server is listening at: http://localhost:${process.env["PORT"]}/`)
-);
+app.listen(process.env.PORT, () => console.log(`Server is listening at: http://localhost:${process.env.PORT}/`));
