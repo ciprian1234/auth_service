@@ -5,11 +5,12 @@ const { createOrUpdateUser, getUser, updateUserTokenVersion } = require("./db_ut
 function addAuthRoutes(app) {
   app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"], session: false }));
 
-  app.get("/auth/google/callback", passport.authenticate("google"), function (req, res) {
+  app.get("/auth/google/callback", passport.authenticate("google"), async function (req, res) {
     if (!req.user) res.status(401).json({ error: "AuthError: Failed to login with OAuth2.0" });
 
-    // check if user is already in DB
-    const { email, tokenVersion, name } = createOrUpdateUser(req.user);
+    // check if user is already stored in DB
+    const db_user = await createOrUpdateUser(req.user);
+    const { email, tokenVersion } = db_user;
 
     // create accessToken
     const token = jwt.sign({ email, tokenVersion }, process.env.ACCESS_TOKEN_SECRET, {
@@ -17,7 +18,7 @@ function addAuthRoutes(app) {
     });
 
     // send userProfile along with accessToken to user
-    res.json({ user: { email, name }, accessToken: token, error: null });
+    res.json({ user: db_user, accessToken: token, error: null });
     // optional feature: create refreshToken
     // optional feature: save refreshToken in user browser as cookie
   });
@@ -26,9 +27,9 @@ function addAuthRoutes(app) {
     res.send(req.user);
   });
 
-  app.get("/logout", isAuthorized, function (req, res) {
+  app.get("/logout", isAuthorized, async function (req, res) {
     // invalidate access and refresh token
-    updateUserTokenVersion();
+    await updateUserTokenVersion(req.user.email);
     res.json({ error: null });
   });
 
@@ -46,7 +47,7 @@ function addAuthRoutes(app) {
   });
 }
 
-function isAuthorized(req, res, next) {
+async function isAuthorized(req, res, next) {
   try {
     // extract jwt access token from HTTP header
     const authorization = req.headers["authorization"];
@@ -65,7 +66,7 @@ function isAuthorized(req, res, next) {
     }
 
     // verify if user was found in database
-    const user = getUser(payload.email);
+    const user = await getUser(payload.email);
     if (!user) throw new Error("User does not exist");
 
     // verify tokenVersion from payload agains tokenVersion from user database

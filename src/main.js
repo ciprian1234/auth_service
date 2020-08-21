@@ -4,6 +4,7 @@ const cors = require("cors");
 const passport = require("passport");
 const passport_config = require("./passport_config");
 const { addAuthRoutes } = require("./auth");
+const { sequelize } = require("./db");
 
 async function main() {
   // create app instance
@@ -17,6 +18,13 @@ async function main() {
 
   // add auth routes
   addAuthRoutes(app);
+
+  // connect to db
+  await sequelize.authenticate();
+  console.log("Connection to DB has been established successfully.");
+  //await sequelize.sync({ force: true });
+  await sequelize.sync();
+  // sync db to sequelize modeles, (re)create all modeles
 
   app.listen(process.env.PORT, () => console.log(`Server is listening at: http://localhost:${process.env.PORT}/`));
 }

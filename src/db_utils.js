@@ -1,28 +1,50 @@
+const { User } = require("./db");
 const { randomBytes } = require("crypto");
 
-// DB STUB
-const users = [];
+module.exports = {
+  getUser,
+  createOrUpdateUser,
+  updateUserTokenVersion,
+};
 
-module.exports.createOrUpdateUser = function (profile) {
-  // extract email from userProfile
-  const email = profile._json.email;
-  const accessTokenProvider = profile.accessToken;
-  const name = profile.name;
-  const tokenVersion = randomBytes(32).toString("base64");
+async function createOrUpdateUser(profile) {
+  let user = await getUser(profile._json.email);
+
+  // create new profile data
+  const newProfile = createUserProfileAdapter(profile);
 
   // check if user already exists in DB
-  if (users.filter((user) => user.email === email).length > 0) {
+  if (!user) {
+    user = await User.create(newProfile); // add user to DB
   } else {
-    users.push({ email, name, accessTokenProvider, tokenVersion });
+    // update userProfile from google profile and also the tokenVersion
+    await User.update(newProfile, { where: { email: newProfile.email } });
   }
 
-  return users[users.length - 1];
-};
+  return getUser(newProfile.email);
+}
 
-module.exports.getUser = function (email) {
-  return users.find((u) => email === u.email);
-};
+// get user by email from database
+async function getUser(email) {
+  return await User.findOne({ where: { email } });
+}
 
-module.exports.updateUserTokenVersion = function (email) {
-  // TODO
-};
+// update user tokenVersion from database
+async function updateUserTokenVersion(email) {
+  const tokenVersion = randomBytes(32).toString("base64");
+  await User.update({ tokenVersion }, { where: { email } });
+}
+
+// user adapter from Provider to User model from database
+function createUserProfileAdapter(profile) {
+  return {
+    providerID: profile.id,
+    providerAccessToken: profile.accessToken,
+    tokenVersion: randomBytes(32).toString("base64"),
+    // role: has already a default value of 'user'
+    email: profile._json.email,
+    givenName: profile._json.given_name,
+    familyName: profile._json.family_name,
+    picture: profile._json.picture,
+  };
+}
