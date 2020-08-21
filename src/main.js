@@ -6,7 +6,7 @@ const passport_config = require("./passport_config");
 const { addAuthRoutes } = require("./auth");
 const { sequelize } = require("./db");
 
-async function main() {
+async function runAuthService(PORT) {
   // create app instance
   const app = express();
   // config passport
@@ -26,7 +26,7 @@ async function main() {
   await sequelize.sync();
   // sync db to sequelize modeles, (re)create all modeles
 
-  app.listen(process.env.PORT, () => console.log(`Server is listening at: http://localhost:${process.env.PORT}/`));
+  app.listen(PORT, () => console.log(`Server is listening at: http://localhost:${PORT}/`));
 }
 
-main();
+module.exports = { runAuthService };
