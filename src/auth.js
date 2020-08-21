@@ -3,14 +3,6 @@ const jwt = require("jsonwebtoken");
 const { createOrUpdateUser, getUser, updateUserTokenVersion } = require("./db_utils.js");
 
 function addAuthRoutes(app) {
-  app.post("/register", function (req, res) {
-    res.status(501).send({ error: "Not implemented, use registration with oauth instead!" }); // not_implemented
-  });
-
-  app.get("/login", function (req, res) {
-    res.status(501).send({ error: "Not implemented, use /auth/<provider> instead" }); // not_implemented
-  });
-
   app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"], session: false }));
 
   app.get("/auth/google/callback", passport.authenticate("google"), function (req, res) {
@@ -30,6 +22,10 @@ function addAuthRoutes(app) {
     // optional feature: save refreshToken in user browser as cookie
   });
 
+  app.get("/me", isAuthorized, function (req, res) {
+    res.send(req.user);
+  });
+
   app.get("/logout", isAuthorized, function (req, res) {
     // invalidate access and refresh token
     updateUserTokenVersion();
@@ -38,7 +34,15 @@ function addAuthRoutes(app) {
 
   app.get("/refresh_tokens", function (req, res) {
     // generate new tokens based on provided refreshToken from cookie
-    res.status(501).send({});
+    res.status(501).send({ error: "Not using refresh token at the moment" });
+  });
+
+  app.post("/register", function (req, res) {
+    res.status(501).send({ error: "Not implemented, use registration with oauth instead!" }); // not_implemented
+  });
+
+  app.get("/login", function (req, res) {
+    res.status(501).send({ error: "Not implemented, use /auth/<provider> instead" }); // not_implemented
   });
 }
 
@@ -67,10 +71,11 @@ function isAuthorized(req, res, next) {
     // verify tokenVersion from payload agains tokenVersion from user database
     if (payload.tokenVersion !== user.tokenVersion) throw new Error("Invalid tokenVersion");
 
-    // if everything is ok we will reach here, that means user is authorized
-    next();
+    // if everything is ok we will reach here, that means user is identified and authorized
+    req.user = user; // add user to the req object
+    next(); // call next middleware
   } catch (err) {
-    res.status(401).json({ error: `AuthError: ${err.message}!`, success: false });
+    res.status(401).json({ error: `AuthError: ${err.message}!` });
   }
 }
 
