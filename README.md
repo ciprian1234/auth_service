@@ -15,6 +15,7 @@ Authentification service with nodejs using jwt and oauth2:
 
 ## Usage
 
+#### Common steps:
 - run: npm install
 - create .env file with following environment variables:
   - PORT=4000
@@ -23,11 +24,19 @@ Authentification service with nodejs using jwt and oauth2:
   - REFRESH_TOKEN_SECRET="Your refresh token secret"
   - ACCESS_TOKEN_SECRET="Your access token secret"
   - ACCESS_TOKEN_EXPIRATION="7d"
+
+#### As a stand-alone webservice:
+- run npm start
+- implement isAuthenticated function in your application using the ACCESS_TOKEN_SECRET from the AuthService.
+- use isAuthenticated function wherever you want your route to be protected
+
+#### As imported code dependencies:
 - import and call function: runAuthService(process.env.PORT)
 - import and use as middleware function: isAuthenticated in each route you want to protect
 
 
-### TODO:
+## TODO's:
 - implement authentication with different roles: "user | admin | superUser"
 - add multiple OAuth2 providers: Facebook, Github, Discord
 - implement refresh token security feature
+- remove exposure to important data from db
