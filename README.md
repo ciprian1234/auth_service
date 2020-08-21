@@ -30,7 +30,7 @@ Authentification service with nodejs using jwt and oauth2:
 - implement isAuthenticated function in your application using the ACCESS_TOKEN_SECRET from the AuthService.
 - use isAuthenticated function wherever you want your route to be protected
 
-#### As imported code dependencies:
+#### As imported code:
 - import and call function: runAuthService(process.env.PORT)
 - import and use as middleware function: isAuthenticated in each route you want to protect
 
