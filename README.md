@@ -17,11 +17,11 @@ Authentification service with nodejs using jwt and oauth2:
 
 - run: npm install
 - create .env file with following environment variables:
-  -- PORT=4000
-  -- GOOGLE_CLIENT_ID="Your google client id"
-  -- GOOGLE_CLIENT_SECRET="Your google client secret"
-  -- REFRESH_TOKEN_SECRET="Your refresh token secret"
-  -- ACCESS_TOKEN_SECRET="Your access token secret"
-  -- ACCESS_TOKEN_EXPIRATION="7d"
+  - PORT=4000
+  - GOOGLE_CLIENT_ID="Your google client id"
+  - GOOGLE_CLIENT_SECRET="Your google client secret"
+  - REFRESH_TOKEN_SECRET="Your refresh token secret"
+  - ACCESS_TOKEN_SECRET="Your access token secret"
+  - ACCESS_TOKEN_EXPIRATION="7d"
 - import and call function: runAuthService(process.env.PORT)
 - import and use as middleware function: isAuthenticated in each route you want to protect
