@@ -25,3 +25,9 @@ Authentification service with nodejs using jwt and oauth2:
   - ACCESS_TOKEN_EXPIRATION="7d"
 - import and call function: runAuthService(process.env.PORT)
 - import and use as middleware function: isAuthenticated in each route you want to protect
+
+
+### TODO:
+- implement authentication with different roles: "user | admin | superUser"
+- add multiple OAuth2 providers: Facebook, Github, Discord
+- implement refresh token security feature
