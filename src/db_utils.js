@@ -4,7 +4,7 @@ const { randomBytes } = require("crypto");
 module.exports = {
   getUser,
   createOrUpdateUser,
-  updateUserTokenVersion,
+  updateUserRefreshTokenVersion,
 };
 
 async function createOrUpdateUser(profile) {
@@ -30,9 +30,9 @@ async function getUser(email) {
 }
 
 // update user tokenVersion from database
-async function updateUserTokenVersion(email) {
-  const tokenVersion = randomBytes(32).toString("base64");
-  await User.update({ tokenVersion }, { where: { email } });
+async function updateUserRefreshTokenVersion(email) {
+  const refreshTokenVersion = randomBytes(32).toString("base64");
+  await User.update({ refreshTokenVersion }, { where: { email } });
 }
 
 // user adapter from Provider to User model from database
@@ -40,7 +40,7 @@ function createUserProfileAdapter(profile) {
   return {
     providerID: profile.id,
     providerAccessToken: profile.accessToken,
-    tokenVersion: randomBytes(32).toString("base64"),
+    refreshTokenVersion: randomBytes(32).toString("base64"),
     // role: has already a default value of 'user'
     email: profile._json.email,
     givenName: profile._json.given_name,

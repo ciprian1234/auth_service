@@ -4,7 +4,7 @@
   "description": "NodeJS auth service",
   "main": "index.js",
   "scripts": {
-    "start": "node src/run.js",
+    "start": "nodemon src/run.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -24,7 +24,7 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    tokenVersion: {
+    refreshTokenVersion: {
       type: DataTypes.STRING,
       allowNull: false,
     },
