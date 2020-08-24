@@ -1,4 +1,4 @@
-const { runAuthService } = require("./src/main");
-const { isAuthorized } = require("./src/auth");
+// const { runAuthService } = require("./src/main");
+const { isAuthorized } = require("./src/isAuthorized");
 
-module.exports = { runAuthService, isAuthorized };
+module.exports = { isAuthorized };

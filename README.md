@@ -30,7 +30,8 @@ Authentification service with nodejs using jwt and oauth2:
 #### As a stand-alone webservice:
 
 - run npm start
-- implement isAuthenticated function in your application using the ACCESS_TOKEN_SECRET and REFRESH_TOKEN_SECRET from the AuthService.
+- add and use cookie-parser midleware
+- import isAuthenticated function in your application (using the ACCESS_TOKEN_SECRET and REFRESH_TOKEN_SECRET from .env auth_service file).
 - use isAuthenticated function wherever you want your route to be protected
 
 #### As imported code:
